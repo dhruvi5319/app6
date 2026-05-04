@@ -112,7 +112,7 @@ When I'm provisioning a privileged system account or rotating credentials for a 
 - Independent toggles for uppercase, lowercase, numbers, and symbols — each controllable in isolation
 - Length slider supports the full 8–128 range; 32–64 character configurations are first-class, not edge cases
 - At least one character from each enabled set is guaranteed in every generated password
-- Strength indicator reads "Very Strong" for all configurations with length ≥ 32 and multiple sets enabled
+- Strength indicator reads "Very Strong" for all configurations with length ≥ 32 and multiple sets enabled *(mathematically guaranteed: minimum case is 2 smallest sets — numbers (10) + symbols (28) = pool of 38 — giving entropy = 32 × log₂(38) ≈ 165 bits, well above the 80-bit "Very Strong" threshold)*
 
 **Success Measure:** Maya configures a 48-character credential matching a specific policy (e.g., uppercase + lowercase + numbers, no symbols) and receives a compliant password in under 20 seconds.
 

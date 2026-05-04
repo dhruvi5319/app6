@@ -21,7 +21,7 @@ This Story Map organizes all 30 User Stories (US-0.1 through US-6.4) into a two-
 - **X-axis (columns):** Journey stages drawn from JOURNEYS-PasswordGenerator.md, consolidated into five universal stages that span all six journeys.
 - **Y-axis (rows):** Epics (F0–F6) and the stories within them, ordered by dependency.
 - **NaC column:** Natural Acceptance Criteria derived from the intersection of a JTBD outcome and the journey stage where the story is exercised. Every NaC traces to a specific JTBD-ID.
-- **Release column:** Increment assignment. Because this is a single-page app with all features shipping together, releases follow priority order: R1 contains all P0 stories (the working product), R2 contains all P1 stories (strength indicator polish).
+- **Release column:** All 30 stories ship in R1. The strength indicator (F5, P1) was originally planned for R2 but is included at launch to ensure all journey Verify stages are fully satisfied and journeys are accurate as written.
 
 **NaC Concept:** NaC are not invented — each one is derived by taking the JTBD functional outcome (the "what matters") and applying it to the specific journey stage (the "when/where") in which the story is exercised, producing a testable criterion that aligns with the UserStory's acceptance criteria.
 
@@ -59,11 +59,11 @@ This Story Map organizes all 30 User Stories (US-0.1 through US-6.4) into a two-
 | PER-02 | **Copy** | Epic 4 (F4) | SM-4.2 | US-4.2: Copy Works Across Browsers | JTBD-02.3 → "Byte-exact copy in Chrome, Firefox, Safari, Edge" → Clipboard API with `execCommand` fallback; both paths preserve character fidelity | R1 |
 | PER-01 | **Copy** | Epic 4 (F4) | SM-4.3 | US-4.3: Prevent Copy When No Password Exists | JTBD-01.1 → "Copy button only active when there is something valid to copy" → Copy button inert before first generation; no clipboard write for null/empty state | R1 |
 | PER-03 | **Copy** | Epic 4 (F4) | SM-4.4 | US-4.4: Copy via Keyboard Shortcut | JTBD-03.1 → "Full generate-and-copy in ≤ 5 keystrokes, zero mouse" → Ctrl+C / Cmd+C on focused output field copies password and triggers "Copied!" feedback | R1 |
-| PER-01/PER-02 | **Generate** | Epic 5 (F5) | SM-5.1 | US-5.1: Visual Strength Bar | JTBD-01.2 → "Confirm password is strong at a glance" → Color-coded bar (red→green) at 25/50/75/100% width updates on every config change and generation | R2 |
-| PER-01 | **Generate** | Epic 5 (F5) | SM-5.2 | US-5.2: Text Label Alongside Strength Bar | JTBD-01.2 → "Plain-language strength label for non-technical users" → Label reads "Weak / Fair / Strong / Very Strong" and is never out of sync with bar | R2 |
-| PER-02 | **Generate** | Epic 5 (F5) | SM-5.3 | US-5.3: Entropy-Based Strength Calculation | JTBD-02.1 → "Strength score accurately reflects cryptographic quality" → `entropy = length × log₂(poolSize)`; thresholds < 40 / < 60 / < 80 / ≥ 80 bits | R2 |
-| PER-03 | **Configure** | Epic 5 (F5) | SM-5.4 | US-5.4: Strength Reflects Config Before Generating | JTBD-03.2 → "See projected strength while dialing in settings, before committing" → Strength indicator active from page load; updates on slider/toggle change without Generate click | R2 |
-| PER-01 | **Generate** | Epic 5 (F5) | SM-5.5 | US-5.5: Strength Indicator Accessible to Screen Readers | JTBD-01.2 → "Confidence signal reachable by all users including AT users" → `role="meter"` with `aria-valuenow`; `aria-label` reads "Password strength: {level}" | R2 |
+| PER-01/PER-02 | **Generate** | Epic 5 (F5) | SM-5.1 | US-5.1: Visual Strength Bar | JTBD-01.2 → "Confirm password is strong at a glance" → Color-coded bar (red→green) at 25/50/75/100% width updates on every config change and generation | R1 |
+| PER-01 | **Generate** | Epic 5 (F5) | SM-5.2 | US-5.2: Text Label Alongside Strength Bar | JTBD-01.2 → "Plain-language strength label for non-technical users" → Label reads "Weak / Fair / Strong / Very Strong" and is never out of sync with bar | R1 |
+| PER-02 | **Generate** | Epic 5 (F5) | SM-5.3 | US-5.3: Entropy-Based Strength Calculation | JTBD-02.1 → "Strength score accurately reflects cryptographic quality" → `entropy = length × log₂(poolSize)`; thresholds < 40 / < 60 / < 80 / ≥ 80 bits | R1 |
+| PER-03 | **Configure** | Epic 5 (F5) | SM-5.4 | US-5.4: Strength Reflects Config Before Generating | JTBD-03.2 → "See projected strength while dialing in settings, before committing" → Strength indicator active from page load; updates on slider/toggle change without Generate click | R1 |
+| PER-01 | **Generate** | Epic 5 (F5) | SM-5.5 | US-5.5: Strength Indicator Accessible to Screen Readers | JTBD-01.2 → "Confidence signal reachable by all users including AT users" → `role="meter"` with `aria-valuenow`; `aria-label` reads "Password strength: {level}" | R1 |
 
 ---
 
@@ -99,43 +99,26 @@ Full traceability: JTBD Outcome → Journey Stage → NaC → Story
 
 ## Release Planning
 
-### R1: Core Workflow — "Every Persona Can Generate and Copy"
-**Theme:** Ship the complete generate-configure-copy flow for all three personas. All P0 stories. Every journey reaches its success outcome.
+### R1: Complete Product — "Every Persona Can Generate, Configure, Copy, and Trust the Output"
+**Theme:** Ship the complete generate-configure-copy flow with real-time strength indicator for all three personas. All 30 stories (P0 + P1). Every journey stage reaches its full success outcome at launch.
 
-**Stories (25):** US-0.1, US-0.2, US-0.3, US-0.4, US-1.1, US-1.2, US-1.3, US-1.4, US-2.1, US-2.2, US-2.3, US-2.4, US-2.5, US-2.6, US-3.1, US-3.2, US-3.3, US-4.1, US-4.2, US-4.3, US-4.4, US-6.1, US-6.2, US-6.3, US-6.4
+**Stories (30):** US-0.1, US-0.2, US-0.3, US-0.4, US-1.1, US-1.2, US-1.3, US-1.4, US-2.1, US-2.2, US-2.3, US-2.4, US-2.5, US-2.6, US-3.1, US-3.2, US-3.3, US-4.1, US-4.2, US-4.3, US-4.4, US-5.1, US-5.2, US-5.3, US-5.4, US-5.5, US-6.1, US-6.2, US-6.3, US-6.4
 
 | Persona | Journeys Fully Satisfied | JTBD Addressed |
 |---------|--------------------------|----------------|
-| PER-01 Alex | JRN-01.1 (instant password), JRN-01.2 (site restrictions) | JTBD-01.1, JTBD-01.3 |
-| PER-02 Maya | JRN-02.1 (provisioning), JRN-02.2 (security audit) | JTBD-02.1, JTBD-02.2, JTBD-02.3 |
-| PER-03 Jordan | JRN-03.1 (keyboard workflow), JRN-03.2 (batch generation, code eval) | JTBD-03.1, JTBD-03.2, JTBD-03.3 |
-
-**JTBD Not Yet Addressed in R1:** JTBD-01.2 (strength verification) — partial; generation works but visual strength feedback is not yet present.
+| PER-01 Alex | JRN-01.1 (instant password + strength confidence), JRN-01.2 (site restrictions + verify) | JTBD-01.1, JTBD-01.2, JTBD-01.3 |
+| PER-02 Maya | JRN-02.1 (provisioning + verify strength), JRN-02.2 (security audit) | JTBD-02.1, JTBD-02.2, JTBD-02.3 |
+| PER-03 Jordan | JRN-03.1 (keyboard workflow), JRN-03.2 (batch generation, config-time strength, code eval) | JTBD-03.1, JTBD-03.2, JTBD-03.3 |
 
 **R1 Journey Completeness Check:**
-- JRN-01.1: Arrive ✅ | Orient ✅ | Verify ⚠️ (no indicator yet) | Copy ✅ | Use ✅
-- JRN-01.2: Return ✅ | Adjust Length ✅ | Disable Symbols ✅ | Verify ⚠️ (no indicator) | Copy ✅
-- JRN-02.1: Configure ✅ | Disable Symbols ✅ | Generate ✅ | Verify Strength ⚠️ (no indicator) | Copy ✅ | Paste ✅
+- JRN-01.1: Arrive ✅ | Orient ✅ | Verify ✅ | Copy ✅ | Use ✅
+- JRN-01.2: Return ✅ | Adjust Length ✅ | Disable Symbols ✅ | Verify ✅ | Copy ✅
+- JRN-02.1: Configure ✅ | Disable Symbols ✅ | Generate ✅ | Verify Strength ✅ | Copy ✅ | Paste ✅
 - JRN-02.2: Open with Suspicion ✅ | Inspect Network ✅ | Audit Source ✅ | Approve ✅
 - JRN-03.1: Switch Tab ✅ | Navigate Generate ✅ | Trigger ✅ | Navigate Copy ✅ | Use ✅
 - JRN-03.2: Configure Once ✅ | Generate ×5 ✅ | Verify Uniqueness ✅ | Inspect Source ✅ | Decide ✅
 
-> ⚠️ Strength verification stages (JRN-01.1 Verify, JRN-01.2 Verify, JRN-02.1 Verify Strength) are not fully satisfied until R2. Core workflows are complete; confidence signal is deferred.
-
----
-
-### R2: Strength Confidence — "Users Trust the Output"
-**Theme:** Add the real-time strength indicator. Completes JTBD-01.2 and closes the Verify stage gaps from R1.
-
-**Stories (5):** US-5.1, US-5.2, US-5.3, US-5.4, US-5.5
-
-| Persona | JTBD Newly Addressed | Journeys Newly Completed |
-|---------|----------------------|--------------------------|
-| PER-01 Alex | JTBD-01.2 (strength verification) | JRN-01.1 Verify stage, JRN-01.2 Verify stage |
-| PER-02 Maya | JTBD-02.1 (strength reads "Very Strong" for policy configs) | JRN-02.1 Verify Strength stage |
-| PER-03 Jordan | JTBD-03.2 (strength visible while configuring) | JRN-03.2 Configure Once stage |
-
-**Dependency:** R2 stories have no blockers — they operate on `appState` that R1 stories establish. R2 can ship immediately after R1 as a patch or be included in the same release if timeline permits.
+> All journey stages fully satisfied at launch. No deferred stages.
 
 ---
 
@@ -143,32 +126,30 @@ Full traceability: JTBD Outcome → Journey Stage → NaC → Story
 
 ### Persona Coverage
 
-| Persona | R1 | R2 | Journeys Served |
-|---------|----|----|-----------------|
-| PER-01 Alex (Consumer) | ✅ Core flow | ✅ Strength signal | JRN-01.1, JRN-01.2 |
-| PER-02 Maya (IT Pro) | ✅ Core flow + Audit | ✅ Entropy accuracy | JRN-02.1, JRN-02.2 |
-| PER-03 Jordan (Developer) | ✅ Keyboard + Batch | ✅ Config-time preview | JRN-03.1, JRN-03.2 |
+| Persona | R1 | Journeys Served |
+|---------|-----|-----------------|
+| PER-01 Alex (Consumer) | ✅ Full — core flow + strength signal | JRN-01.1, JRN-01.2 |
+| PER-02 Maya (IT Pro) | ✅ Full — core flow + audit + entropy accuracy | JRN-02.1, JRN-02.2 |
+| PER-03 Jordan (Developer) | ✅ Full — keyboard + batch + config-time strength preview | JRN-03.1, JRN-03.2 |
 
 ### JTBD Coverage
 
-| JTBD-ID | R1 | R2 | Gap |
-|---------|----|----|-----|
-| JTBD-01.1 | ✅ Full | — | None |
-| JTBD-01.2 | ⚠️ Partial (no indicator) | ✅ Full | Resolved in R2 |
-| JTBD-01.3 | ✅ Full | — | None |
-| JTBD-02.1 | ✅ Full | ✅ Strength component | None after R2 |
-| JTBD-02.2 | ✅ Full | — | None |
-| JTBD-02.3 | ✅ Full | — | None |
-| JTBD-03.1 | ✅ Full | — | None |
-| JTBD-03.2 | ✅ Full | ✅ Config-time strength | None after R2 |
-| JTBD-03.3 | ✅ Full | — | None |
+| JTBD-ID | R1 | Gap |
+|---------|-----|-----|
+| JTBD-01.1 | ✅ Full | None |
+| JTBD-01.2 | ✅ Full | None |
+| JTBD-01.3 | ✅ Full | None |
+| JTBD-02.1 | ✅ Full | None |
+| JTBD-02.2 | ✅ Full | None |
+| JTBD-02.3 | ✅ Full | None |
+| JTBD-03.1 | ✅ Full | None |
+| JTBD-03.2 | ✅ Full | None |
+| JTBD-03.3 | ✅ Full | None |
 
 ### Gap Analysis
 
 **Journey Stages Without Full Coverage in R1:**
-- JRN-01.1 Verify stage — no strength indicator until R2
-- JRN-01.2 Verify stage — no strength indicator until R2
-- JRN-02.1 Verify Strength stage — no indicator until R2
+- None. All journey stages across all six journeys are fully satisfied in R1.
 
 **JTBD Outcomes Without Stories (permanent gaps — out of scope v1.0):**
 - JTBD-01.1 / JTBD-03.2 success path via *password history* — PRD explicitly out of scope

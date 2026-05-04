@@ -305,10 +305,11 @@
 **As a** developer / technical builder (Jordan Park), **I want to** copy the password using `Ctrl+C` / `Cmd+C` while the output field is focused, **so that** I can complete the full generate-and-copy workflow without touching the mouse.
 
 **Acceptance Criteria:**
-- [ ] When the password display field is focused, pressing `Ctrl+C` (Windows/Linux) or `Cmd+C` (macOS) copies the password to clipboard
-- [ ] The Copy button visual confirmation ("Copied!") is triggered by the keyboard shortcut as well
+- [ ] When the password display field is focused, pressing `Ctrl+C` (Windows/Linux) or `Cmd+C` (macOS) triggers the JS copy handler (not relying on native browser copy), writing the password to clipboard programmatically
+- [ ] The `keydown` event for `Ctrl+C` / `Cmd+C` calls `event.preventDefault()` and invokes the same copy function as the Copy button click
+- [ ] The Copy button visual confirmation ("Copied!" for 2 seconds) is triggered by the keyboard shortcut, identical to a button click
 - [ ] The output field is reachable via Tab key navigation in the logical reading order
-- [ ] Keyboard-triggered copy works whether the field contains selected text or not
+- [ ] Keyboard-triggered copy works regardless of whether text in the field is visually selected
 
 **Priority:** P0 | **Feature Ref:** F4
 

@@ -170,7 +170,6 @@ A zero-friction, instant password generator solves the creation problem — remo
 ## 7. Success Metrics
 
 - **Time-to-first-password:** A new user generates and copies their first password in ≤ 10 seconds of page load.
-- **Core task completion rate:** ≥ 95% of users who visit the page successfully copy a password (measured via lightweight event logging, if analytics are added in future).
 - **Page load performance:** Lighthouse Performance score ≥ 90.
 - **Accessibility score:** Lighthouse Accessibility score ≥ 90.
 - **Cross-browser compatibility:** Zero functional regressions across the four supported browser families.

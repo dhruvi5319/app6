@@ -118,16 +118,17 @@ Password Generator is a pure client-side single-page application (SPA) built wit
 1. On page load, set both the slider and numeric input to the default value of `16`.
 2. When the user drags the slider:
    a. Read the new slider value.
-   b. Update the numeric input to display the same value.
-   c. Update `appState.length`.
-   d. Trigger re-generation if auto-generate is active; otherwise leave existing password in place.
+    b. Update the numeric input to display the same value.
+       c. Update `appState.length`.
+       d. Trigger re-generation immediately (auto-regenerate is always active — any configuration change produces a new password without a separate Generate click).
 3. When the user types in the numeric input:
    a. Parse the entered value as an integer.
    b. If the value is empty or non-numeric, hold the previous valid value; do not update state.
    c. If the value is below 8, clamp to 8 on blur (not during typing).
    d. If the value is above 128, clamp to 128 on blur (not during typing).
-   e. Update the slider to match the clamped value.
-   f. Update `appState.length`.
+    e. Update the slider to match the clamped value.
+    f. Update `appState.length`.
+    g. Trigger re-generation immediately with the new length value (auto-regenerate is always active).
 4. Display a visible counter label (e.g., "Length: 16") adjacent to the slider.
 
 **Inputs:**
@@ -182,10 +183,10 @@ Password Generator is a pure client-side single-page application (SPA) built wit
 3. When the user clicks a toggle to disable a set:
    a. Count the number of currently enabled sets.
    b. If count is 1 (this is the last enabled set), prevent the toggle from being unchecked. Show a brief inline message: "At least one character set must be selected."
-   c. If count > 1, uncheck the toggle and remove the set key from `appState.enabledSets`.
+    c. If count > 1, uncheck the toggle and remove the set key from `appState.enabledSets`. Immediately trigger re-generation (F0) with the updated `appState` and update the password display (F3).
 4. When the user clicks a toggle to enable a set:
-   a. Check the toggle.
-   b. Add the set key to `appState.enabledSets`.
+    a. Check the toggle.
+    b. Add the set key to `appState.enabledSets`. Immediately trigger re-generation (F0) with the updated `appState` and update the password display (F3).
 5. After any toggle change, re-evaluate the Generate button's disabled state (F6).
 6. After any toggle change, update the strength indicator (F5).
 
@@ -291,7 +292,7 @@ Password Generator is a pure client-side single-page application (SPA) built wit
 3. Visual confirmation:
    a. Change button label to "Copied!" (and optionally change icon to a checkmark).
    b. After 2000ms, revert label back to "Copy".
-4. The Copy action is also triggered by keyboard shortcut `Ctrl+C` / `Cmd+C` when the output field is focused.
+4. The Copy action is also triggered by keyboard shortcut `Ctrl+C` / `Cmd+C` when the output field is focused. Implementation: the output field listens for `keydown` events and intercepts `Ctrl+C` / `Cmd+C` by calling `event.preventDefault()` and invoking the same copy handler as the button click (programmatic clipboard write + "Copied!" confirmation). This ensures consistent visual feedback regardless of how the copy is triggered. Native browser copy (without interception) is not relied upon for this feature.
 
 **Inputs:**
 - Button click event
