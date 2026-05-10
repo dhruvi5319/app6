@@ -12,7 +12,7 @@ Three phases that deliver the complete password generator. Phase 1 builds the co
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Core Generation Loop** - Engine, display, and generate trigger working end-to-end
+- [x] **Phase 1: Core Generation Loop** - Engine, display, and generate trigger working end-to-end
 - [ ] **Phase 2: Configuration Controls** - Length slider/input and character set toggles
 - [ ] **Phase 3: Copy to Clipboard** - One-click copy with visual confirmation and fallback
 
@@ -28,12 +28,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Generated password is exactly the configured length
   4. Display field shows placeholder text before first generation and updates on every subsequent generation
   5. Generate button responds to both mouse click and keyboard (Enter/Space)
-**Plans**: Created
+**Plans**: Complete
 
 Plans:
-- [ ] 01-01: Generation engine (Web Crypto API, character pool, Fisher-Yates shuffle)
-- [ ] 01-02: Password display component (read-only monospace field, placeholder state)
-- [ ] 01-03: Generate button and trigger wiring (click, keyboard, auto-regenerate on config change)
+- [x] 01-01: Generation engine (Web Crypto API, character pool, Fisher-Yates shuffle)
+- [x] 01-02: Password display component (read-only monospace field, placeholder state)
+- [x] 01-03: Generate button and trigger wiring (click, keyboard, auto-regenerate on config change)
 
 ### Phase 2: Configuration Controls
 **Goal**: Users can control password length and character composition before generating
@@ -71,6 +71,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Core Generation Loop | 0/3 | Not started | - |
+| 1. Core Generation Loop | 3/3 | Done | 2026-05-10 |
 | 2. Configuration Controls | 0/2 | Not started | - |
 | 3. Copy to Clipboard | 0/1 | Not started | - |

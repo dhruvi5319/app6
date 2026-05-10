@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password Generator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Password Generator</h1>
+    </header>
+
+    <main>
+      <!-- Password Display (F3) -->
+      <section class="display-section" aria-label="Generated password">
+        <input
+          type="text"
+          id="password-display"
+          class="password-display"
+          readonly
+          placeholder="Click Generate to create a password"
+          aria-label="Generated password"
+          aria-live="polite"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </section>
+
+      <!-- Action Bar (F6, F4) — wired in Plan 01-03 -->
+      <section class="action-bar">
+        <button
+          id="generate-btn"
+          class="btn btn-primary"
+          aria-label="Generate password"
+          type="button"
+        >
+          Generate Password
+        </button>
+        <!-- Copy button added in Phase 3 -->
+      </section>
+
+      <!-- Config Panel (F1, F2) — added in Phase 2 -->
+
+      <!-- Strength Indicator (F5) — placeholder for Phase 2 -->
+      <section class="strength-section" aria-label="Password strength">
+        <div class="strength-bar-container" role="meter" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1" aria-label="Password strength: Weak">
+          <div id="strength-bar" class="strength-bar" style="width: 0%;"></div>
+        </div>
+        <span id="strength-label" class="strength-label"></span>
+      </section>
+    </main>
+  </div>
+
+  <!-- Module entry point — wired in Plan 01-03 -->
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
