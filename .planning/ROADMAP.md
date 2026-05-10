@@ -45,11 +45,12 @@ Plans:
   3. User can toggle any combination of uppercase, lowercase, numbers, and symbols on/off
   4. Attempting to disable the last active character set is rejected with an inline message
   5. Changing length or toggling a character set immediately regenerates the password
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: Length control (slider + numeric input, bidirectional sync, clamping, default 16)
-- [ ] 02-02: Character set toggles (four checkboxes, Last Active Guard, state sync)
+- [ ] 02-00-PLAN.md — TDD: Last Active Guard pure function (isLastActive)
+- [ ] 02-01-PLAN.md — Length control (slider + numeric input, bidirectional sync, clamping, default 16)
+- [ ] 02-02-PLAN.md — Character set toggles (four checkboxes, Last Active Guard, state sync)
 
 ### Phase 3: Copy to Clipboard
 **Goal**: Users can copy the generated password to their clipboard in one click
