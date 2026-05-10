@@ -28,7 +28,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Generated password is exactly the configured length
   4. Display field shows placeholder text before first generation and updates on every subsequent generation
   5. Generate button responds to both mouse click and keyboard (Enter/Space)
-**Plans**: TBD
+**Plans**: Created
 
 Plans:
 - [ ] 01-01: Generation engine (Web Crypto API, character pool, Fisher-Yates shuffle)
