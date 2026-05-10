@@ -73,5 +73,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Core Generation Loop | 3/3 | Done | 2026-05-10 |
-| 2. Configuration Controls | 0/2 | Not started | - |
+| 2. Configuration Controls | 0/3 | Not started | - |
 | 3. Copy to Clipboard | 0/1 | Not started | - |
