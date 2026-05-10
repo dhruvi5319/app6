@@ -1,44 +1,52 @@
 # Plan 01-01: Generation Engine
 
-**Phase:** 1 — Core Generation Loop  
-**Plan:** 01-01 of 03  
-**Goal:** Implement the password generation engine module (Web Crypto API, character pool assembly, guaranteed slots, Fisher-Yates shuffle)  
-**Requirements covered:** GEN-01, GEN-02, GEN-03  
-**Status:** Pending
+**Phase:** 1 — Core Generation Loop
+**Plan:** 01-01 of 03
+**Goal:** Implement the password generation engine module (Web Crypto API, character pool assembly, guaranteed slots, Fisher-Yates shuffle)
+**Requirements covered:** GEN-01, GEN-02, GEN-03
+**Status:** Complete ✅
+**Completed:** 2026-05-10
+**Depends on:** None (first deliverable)
+
+---
+
+## What Was Built
+
+The password generation engine is fully implemented as a pure logic module with zero DOM dependency. All 13 unit tests pass. The engine is consumed by `src/app.js` via ES module import.
+
+### Files Created
+
+| File | Lines | Notes |
+|------|-------|-------|
+| `src/engine/generator.js` | 117 | Pure logic module — no DOM dependency |
+| `src/engine/generator.test.js` | 101 | 13 Vitest unit tests, all passing |
+| `package.json` | 12 | ESM module, Vitest 1.x, dev/test scripts |
+| `vitest.config.js` | 10 | Node env, `setupFiles` pointing to vitest.setup.js |
+| `vitest.setup.js` | 7 | `globalThis.crypto` polyfill for Node test environment |
+
+### Exports from `src/engine/generator.js`
+
+```js
+export const CHAR_SETS    // Character set registry (4 sets)
+export function buildPool  // Concatenates characters from enabled set keys
+export function generate   // Main generation function
+// Internal (not exported): unbiasedRandomIndex, randomChar, shuffle
+```
 
 ---
 
 ## Context
 
-This is the first deliverable for the app. There is no existing codebase — greenfield. The engine is a pure logic module with no DOM dependency. It must use `crypto.getRandomValues()` exclusively (no `Math.random()`). The engine will be used by the Generate button (Plan 01-03) to produce passwords.
-
-Tech stack: Vanilla JS (ES2020+), no framework, no build step required for Phase 1 (plain `<script type="module">` is fine). File layout: `src/engine/generator.js`.
+Greenfield implementation. The engine is the first deliverable. Tech stack: Vanilla JS (ESM), no framework, no build step. Testing: Vitest 1.6.1 in Node environment with `globalThis.crypto` polyfilled.
 
 ---
 
-## Tasks
+## Implementation Details
 
-### Task 1: Create project file structure
-
-Create the minimal directory structure needed for Phase 1:
-
-```
-/
-├── index.html          ← shell (created in Plan 01-02)
-├── style.css           ← styles (created in Plan 01-02)
-└── src/
-    └── engine/
-        └── generator.js  ← this plan
-```
-
-- Create `src/engine/` directory (mkdir -p or just create the file with path)
-
-### Task 2: Define character set registry
-
-In `src/engine/generator.js`, define the `CHAR_SETS` constant:
+### Character Set Registry (`CHAR_SETS`)
 
 ```js
-const CHAR_SETS = {
+export const CHAR_SETS = {
   uppercase: { key: 'uppercase', characters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', size: 26 },
   lowercase: { key: 'lowercase', characters: 'abcdefghijklmnopqrstuvwxyz', size: 26 },
   numbers:   { key: 'numbers',   characters: '0123456789',                  size: 10 },
@@ -46,36 +54,36 @@ const CHAR_SETS = {
 };
 ```
 
-### Task 3: Implement `buildPool(enabledSets)`
+### `buildPool(enabledSets)`
 
 Pure function. Concatenates the `characters` string of each enabled set key.
 
 ```js
-function buildPool(enabledSets) {
+export function buildPool(enabledSets) {
   return enabledSets.map(key => CHAR_SETS[key].characters).join('');
 }
 ```
 
-### Task 4: Implement `unbiasedRandomIndex(poolSize)`
+### `unbiasedRandomIndex(poolSize)` (internal)
 
-Use rejection sampling to avoid modulo bias:
+Rejection sampling to avoid modulo bias. Resolves `cryptoAPI` via dual-path guard for Node/browser compatibility:
 
 ```js
 function unbiasedRandomIndex(poolSize) {
   const limit = Math.floor(0xFFFFFFFF / poolSize) * poolSize;
   const buf = new Uint32Array(1);
+  const cryptoAPI = (typeof globalThis !== 'undefined' && globalThis.crypto)
+    || (typeof window !== 'undefined' && window.crypto);
   let value;
   do {
-    crypto.getRandomValues(buf);
+    cryptoAPI.getRandomValues(buf);
     value = buf[0];
   } while (value >= limit);
   return value % poolSize;
 }
 ```
 
-### Task 5: Implement `randomChar(pool)`
-
-Draw one random character from a string using `unbiasedRandomIndex`:
+### `randomChar(pool)` (internal)
 
 ```js
 function randomChar(pool) {
@@ -83,9 +91,9 @@ function randomChar(pool) {
 }
 ```
 
-### Task 6: Implement `shuffle(arr)`
+### `shuffle(arr)` (internal)
 
-Fisher-Yates in-place shuffle using `crypto.getRandomValues()`:
+Fisher-Yates in-place shuffle using `unbiasedRandomIndex`:
 
 ```js
 function shuffle(arr) {
@@ -96,96 +104,120 @@ function shuffle(arr) {
 }
 ```
 
-### Task 7: Implement `generate(config)`
-
-Main public function:
+### `generate(config)` — Main Public Function
 
 ```js
 export function generate(config) {
-  // 1. Validate crypto availability
-  if (!window.crypto || !window.crypto.getRandomValues) {
-    throw new Error('CRYPTO_UNAVAILABLE');
-  }
-  // 2. Validate config
-  if (!config.enabledSets || config.enabledSets.length === 0) {
-    throw new Error('NO_SETS_ENABLED');
-  }
-  let length = config.length;
-  let lengthAdjusted = false;
-  if (length < config.enabledSets.length) {
-    length = config.enabledSets.length;
-    lengthAdjusted = true;
-  }
-  // 3. Build pool
-  const pool = buildPool(config.enabledSets);
-  // 4. Guaranteed slots — one char from each enabled set
-  const slots = config.enabledSets.map(key => randomChar(CHAR_SETS[key].characters));
-  // 5. Fill remaining positions from full pool
-  const remaining = length - slots.length;
-  for (let i = 0; i < remaining; i++) {
-    slots.push(randomChar(pool));
-  }
-  // 6. Shuffle
-  shuffle(slots);
-  // 7. Return result
-  return {
-    password: slots.join(''),
-    length: slots.length,
-    lengthAdjusted,
-  };
+  // config: { length: number, enabledSets: string[] }
+  // returns: { password: string, length: number, lengthAdjusted: boolean }
+  // throws: Error('CRYPTO_UNAVAILABLE') | Error('NO_SETS_ENABLED')
 }
 ```
 
-### Task 8: Export module
+Generation steps:
+1. Validate crypto availability via dual-path guard
+2. Validate `config.enabledSets` is non-empty
+3. Auto-adjust `length` if `length < enabledSets.length` (sets `lengthAdjusted = true`)
+4. Build pool string via `buildPool`
+5. Fill guaranteed slots — one character from each enabled set
+6. Fill remaining slots from full pool
+7. Fisher-Yates shuffle
+8. Return `{ password, length, lengthAdjusted }`
 
-Ensure `generator.js` uses ES module `export` for `generate` and `buildPool` (needed for unit tests and consumption by UI code in Plan 01-03).
+### Test Infrastructure
 
-Also export `CHAR_SETS` so UI code can reference character set metadata.
+```js
+// vitest.config.js
+export default defineConfig({
+  test: {
+    environment: 'node',
+    globals: true,
+    setupFiles: ['./vitest.setup.js'],
+  },
+});
 
-### Task 9: Write unit tests
+// vitest.setup.js
+import { webcrypto } from 'node:crypto';
+if (typeof globalThis.crypto === 'undefined') {
+  globalThis.crypto = webcrypto;
+}
+```
 
-Create `src/engine/generator.test.js` (Vitest or plain test-runner assertions run in Node with `--experimental-vm-modules` flag, or use a simple in-browser test approach).
+---
 
-**Tests to write:**
+## Unit Tests (13 total)
 
-| Test | Assertion |
-|------|-----------|
-| `generate` returns password of exact length | `result.password.length === config.length` |
-| All characters in password come from enabled sets | Every char is in the pool string |
-| At least one char from each enabled set | For each enabled set, at least one char appears |
-| `shuffle` does not change array length or elements | Same set of chars, different order |
-| `unbiasedRandomIndex` returns value in `[0, poolSize)` | `result >= 0 && result < poolSize` |
-| Throws `CRYPTO_UNAVAILABLE` if crypto absent | Mock `window.crypto = undefined` |
-| Throws `NO_SETS_ENABLED` if empty array | `generate({ length: 16, enabledSets: [] })` |
-| `lengthAdjusted` flag set when length < set count | `generate({ length: 1, enabledSets: ['uppercase', 'lowercase'] })` |
+**Verified test run:** `npm test` → 13/13 passing, 157ms (2026-05-10)
 
-> **Note:** Since this is a pure logic module with no DOM dependency, tests can be run in Node.js with jsdom or directly via Vitest. Keep test setup minimal for Phase 1 — a `package.json` with Vitest dev dependency is enough.
+### `describe('generate()')` — 9 tests
+
+| # | Test Name | What It Verifies |
+|---|-----------|-----------------|
+| 1 | returns a password of exact requested length | `result.password.length === 16`, `result.length === 16`, `result.lengthAdjusted === false` |
+| 2 | returns a password of exact requested length for single set | Single set (`uppercase`), length 8 |
+| 3 | all characters come from enabled sets | Length 32, all 4 sets — every char present in pool |
+| 4 | all characters come from single enabled set | Uppercase only — every char in uppercase pool |
+| 5 | guarantees at least one character from each enabled set | 20 runs of length 16, all 4 sets must appear each run |
+| 6 | sets lengthAdjusted=true when length < number of enabled sets | `length: 1, enabledSets: ['uppercase', 'lowercase']` → `lengthAdjusted: true`, `length: 2` |
+| 7 | throws CRYPTO_UNAVAILABLE if crypto.getRandomValues is absent | Deletes `globalThis.crypto`, restores after |
+| 8 | throws NO_SETS_ENABLED if enabledSets is empty | `enabledSets: []` |
+| 9 | throws NO_SETS_ENABLED if enabledSets is undefined | No `enabledSets` property |
+| 10 | generates 1000 passwords with near-zero collisions | Set of 1000 must have size 1000 |
+
+### `describe('buildPool()')` — 2 tests
+
+| # | Test Name | What It Verifies |
+|---|-----------|-----------------|
+| 11 | concatenates characters from all enabled sets | `['uppercase', 'numbers']` → exact string concat |
+| 12 | returns empty string for empty array | `buildPool([])` === `''` |
+
+### `describe('unbiasedRandomIndex (via generate)')` — 1 test
+
+| # | Test Name | What It Verifies |
+|---|-----------|-----------------|
+| 13 | stays in valid range — all chars from generate are within pool | 100 chars from symbols set, all at valid `indexOf` |
+
+---
+
+## Divergences from Original Plan
+
+| Item | Original Plan Said | What Was Actually Built |
+|------|--------------------|------------------------|
+| Crypto API access in `generate()` and `unbiasedRandomIndex()` | `window.crypto` only | `globalThis.crypto \|\| window.crypto` dual-path guard — required for Node test compatibility |
+| Test count | 8 tests | **13 tests** (5 additional: single-set length, single-set chars, `undefined` enabledSets, 1000 collision check, range check via generate) |
+| Test environment config | Not specified — suggested jsdom or `--experimental-vm-modules` | `vitest.config.js` with `environment: 'node'` + `vitest.setup.js` polyfill |
+| `shuffle` test | Listed as standalone test ("shuffle does not change array length or elements") | Shuffle tested indirectly via generate tests; no dedicated shuffle describe block |
 
 ---
 
 ## File Checklist
 
-- [ ] `src/engine/generator.js` created with all functions
-- [ ] All functions exported correctly
-- [ ] `CHAR_SETS` exported
-- [ ] `src/engine/generator.test.js` created with all 8 test cases
-- [ ] `package.json` created with Vitest dev dependency (if not already present)
+- [x] `src/engine/generator.js` created with all functions
+- [x] `CHAR_SETS` exported
+- [x] `buildPool` exported
+- [x] `generate` exported
+- [x] `src/engine/generator.test.js` created with 13 test cases
+- [x] `package.json` created with `"type": "module"`, Vitest dev dependency, `test`/`dev` scripts
+- [x] `vitest.config.js` created with node environment and setupFiles
+- [x] `vitest.setup.js` created with `globalThis.crypto` polyfill
 
 ---
 
-## Acceptance Criteria
+## Acceptance Criteria — Verified
 
-- [ ] `generate({ length: 16, enabledSets: ['uppercase', 'lowercase', 'numbers', 'symbols'] })` returns a 16-character string
-- [ ] All characters in the returned string are from the combined alphabet (`ABCDEFGHIJKLMNOPQRSTUVWXYZ` + `abcdefghijklmnopqrstuvwxyz` + `0123456789` + `!@#$%^&*()-_=+[]{}|;:,.<>?`)
-- [ ] At least one character from each of the four enabled sets is present
-- [ ] `generate({ length: 8, enabledSets: ['uppercase'] })` returns 8 uppercase letters only
-- [ ] Calling `generate` 1000 times produces no two identical results (probabilistic — near-zero collision chance)
-- [ ] Unit tests pass: `npm test` (or `npx vitest run`) exits 0
+- [x] `generate({ length: 16, enabledSets: ['uppercase', 'lowercase', 'numbers', 'symbols'] })` returns a 16-character string
+- [x] All characters in the returned string are from the combined alphabet (26 + 26 + 10 + 28 = 90 chars)
+- [x] At least one character from each of the four enabled sets is guaranteed (tested over 20 runs)
+- [x] `generate({ length: 8, enabledSets: ['uppercase'] })` returns 8 uppercase letters only
+- [x] Calling `generate` 1000 times produces no two identical results
+- [x] `npm test` passes — 13/13 tests green, exits 0
 
 ---
 
 ## Notes / Decisions
 
-- No TypeScript in Phase 1 — plain JS with JSDoc comments for type hints. TypeScript can be added as an optional enhancement later.
-- `Math.random()` is not used anywhere in this file. A comment at the top of `generator.js` documents this constraint.
-- The `generate()` function clamps length silently (auto-adjusts) rather than throwing, per FRD F0 spec.
+- `Math.random()` is never used. Comment at top of `generator.js` enforces this constraint.
+- No TypeScript — plain JS with JSDoc comments for type hints.
+- `generate()` clamps length silently (auto-adjusts) rather than throwing, and communicates the adjustment via `lengthAdjusted: true` in the return value. `app.js` surfaces this as a brief info message to the user.
+- Dual-path crypto guard (`globalThis.crypto || window.crypto`) was not in the original plan but is the correct approach — `window.crypto` alone would break in the Node test environment.
+- The `vitest.config.js` + `vitest.setup.js` pair was not specified in the original plan but is required to run the engine tests in Node without jsdom.

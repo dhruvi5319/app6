@@ -1,89 +1,103 @@
 # Plan 01-02: Password Display Component
 
-**Phase:** 1 — Core Generation Loop  
-**Plan:** 01-02 of 03  
-**Goal:** Build the HTML shell (`index.html`), base CSS (`style.css`), and the password display component — a read-only monospace field with placeholder state  
-**Requirements covered:** DISP-01, DISP-02, DISP-03  
-**Status:** Pending  
-**Depends on:** Plan 01-01 (generator.js must exist to wire up in Plan 01-03, but display component itself has no JS dependency — pure HTML/CSS + minimal render function)
+**Phase:** 1 — Core Generation Loop
+**Plan:** 01-02 of 03
+**Goal:** Build the HTML shell (`index.html`), base CSS (`style.css`), and the password display component — a read-only monospace field with placeholder state
+**Requirements covered:** DISP-01, DISP-02, DISP-03
+**Status:** Complete ✅
+**Completed:** 2026-05-10
+**Depends on:** Plan 01-01 (generator.js must exist to wire up in Plan 01-03; display itself has no JS dependency — pure HTML/CSS)
+
+---
+
+## What Was Built
+
+The complete HTML shell and CSS stylesheet for the app. The password display is a read-only monospace `<input>` with placeholder state. The strength bar, action bar, and module `<script>` tag are all present in the static HTML. The full `src/app.js` (not merely a stub) was implemented in Plan 01-03.
+
+### Files Created
+
+| File | Lines | Notes |
+|------|-------|-------|
+| `index.html` | 59 | Full HTML structure, ARIA attributes, module script tag |
+| `style.css` | 156 | Dark theme, monospace display, strength bar, responsive |
 
 ---
 
 ## Context
 
-This plan produces the visible app skeleton and the `PasswordDisplay` component. At the end of this plan, the page renders correctly in a browser (with placeholder text visible) but is not yet interactive — the Generate button wiring is done in Plan 01-03.
+This plan produced the visible app skeleton. At the end of this plan (before Plan 01-03), the page renders correctly in a browser — placeholder text is visible — but is not yet interactive. The `src/app.js` module is referenced by the `<script>` tag but its event wiring is completed in Plan 01-03.
 
-The display component is a read-only `<input type="text">` (chosen over `<div>` for native keyboard focusability and text selection support). It uses a monospace font, shows a placeholder before first generation, and scrolls horizontally for long passwords.
+The display component uses `<input type="text" readonly>` (not a `<div>`) for native horizontal scroll, keyboard focusability, and text-selection support.
 
 ---
 
-## Tasks
+## Implementation Details
 
-### Task 1: Create `index.html`
-
-Create the document shell with:
-- `<!DOCTYPE html>` + `<html lang="en">`
-- `<meta charset="UTF-8">` and `<meta name="viewport" content="width=device-width, initial-scale=1.0">`
-- `<title>Password Generator</title>`
-- Link to `style.css`
-- App root `<div id="app">`
-
-**Full component structure to include in `<div id="app">`:**
+### `index.html` — Full Structure
 
 ```html
-<div id="app">
-  <header>
-    <h1>Password Generator</h1>
-  </header>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password Generator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Password Generator</h1>
+    </header>
 
-  <main>
-    <!-- Password Display (F3) -->
-    <section class="display-section" aria-label="Generated password">
-      <input
-        type="text"
-        id="password-display"
-        class="password-display"
-        readonly
-        placeholder="Click Generate to create a password"
-        aria-label="Generated password"
-        aria-live="polite"
-        autocomplete="off"
-        spellcheck="false"
-      />
-    </section>
+    <main>
+      <!-- Password Display (F3) -->
+      <section class="display-section" aria-label="Generated password">
+        <input
+          type="text"
+          id="password-display"
+          class="password-display"
+          readonly
+          placeholder="Click Generate to create a password"
+          aria-label="Generated password"
+          aria-live="polite"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </section>
 
-    <!-- Action Bar (F6, F4) — wired in Plan 01-03 -->
-    <section class="action-bar">
-      <button
-        id="generate-btn"
-        class="btn btn-primary"
-        aria-label="Generate password"
-        type="button"
-      >
-        Generate Password
-      </button>
-      <!-- Copy button added in Phase 3 -->
-    </section>
+      <!-- Action Bar (F6, F4) — wired in Plan 01-03 -->
+      <section class="action-bar">
+        <button
+          id="generate-btn"
+          class="btn btn-primary"
+          aria-label="Generate password"
+          type="button"
+        >
+          Generate Password
+        </button>
+        <!-- Copy button added in Phase 3 -->
+      </section>
 
-    <!-- Config Panel (F1, F2) — added in Phase 2 -->
+      <!-- Config Panel (F1, F2) — added in Phase 2 -->
 
-    <!-- Strength Indicator (F5) — placeholder for Phase 2 -->
-    <section class="strength-section" aria-label="Password strength">
-      <div class="strength-bar-container" role="meter" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1" aria-label="Password strength: Weak">
-        <div id="strength-bar" class="strength-bar" style="width: 0%;"></div>
-      </div>
-      <span id="strength-label" class="strength-label"></span>
-    </section>
-  </main>
-</div>
+      <!-- Strength Indicator (F5) — placeholder for Phase 2 -->
+      <section class="strength-section" aria-label="Password strength">
+        <div class="strength-bar-container" role="meter" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1" aria-label="Password strength: Weak">
+          <div id="strength-bar" class="strength-bar" style="width: 0%;"></div>
+        </div>
+        <span id="strength-label" class="strength-label"></span>
+      </section>
+    </main>
+  </div>
 
-<!-- Module entry point — wired in Plan 01-03 -->
-<script type="module" src="src/app.js"></script>
+  <!-- Module entry point — wired in Plan 01-03 -->
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
 ```
 
-### Task 2: Create `style.css`
-
-Write base CSS covering:
+### `style.css` — Key Sections
 
 **Reset / base:**
 ```css
@@ -110,13 +124,6 @@ body {
   max-width: 480px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.4);
 }
-h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  color: #f7fafc;
-}
 ```
 
 **Password display field:**
@@ -136,10 +143,6 @@ h1 {
   outline: none;
   letter-spacing: 0.05em;
 }
-.password-display:focus {
-  border-color: #63b3ed;
-  box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
-}
 .password-display::placeholder {
   color: #718096;
   font-style: italic;
@@ -148,44 +151,8 @@ h1 {
 }
 ```
 
-**Action bar:**
-```css
-.action-bar {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-.btn {
-  flex: 1;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-}
-.btn:active { transform: scale(0.98); }
-.btn:focus-visible {
-  outline: 2px solid #63b3ed;
-  outline-offset: 2px;
-}
-.btn-primary {
-  background: #4299e1;
-  color: #fff;
-}
-.btn-primary:hover { background: #3182ce; }
-.btn-primary:disabled {
-  background: #4a5568;
-  color: #718096;
-  cursor: not-allowed;
-  transform: none;
-}
-```
-
 **Strength bar:**
 ```css
-.strength-section { margin-top: 1rem; }
 .strength-bar-container {
   height: 6px;
   background: #4a5568;
@@ -197,96 +164,75 @@ h1 {
   border-radius: 3px;
   transition: width 0.3s, background-color 0.3s;
 }
-.strength-label {
-  display: block;
-  font-size: 0.75rem;
-  color: #a0aec0;
-  margin-top: 0.25rem;
-  text-align: right;
-}
 ```
 
-**Display section spacing:**
-```css
-.display-section { margin-bottom: 0; }
-```
+---
 
-### Task 3: Create `src/app.js` stub
+## ARIA Attributes
 
-Create a minimal `src/app.js` that will be expanded in Plan 01-03:
+| Element | Attribute | Value | Purpose |
+|---------|-----------|-------|---------|
+| `<section>` wrapping input | `aria-label` | `"Generated password"` | Landmark label |
+| `#password-display` | `aria-label` | `"Generated password"` | Input accessible name |
+| `#password-display` | `aria-live` | `"polite"` | Screen reader announces updates |
+| `#password-display` | `readonly` | (present) | Prevents user editing |
+| `.strength-bar-container` | `role` | `"meter"` | ARIA meter role |
+| `.strength-bar-container` | `aria-valuemin` | `"1"` | Minimum score |
+| `.strength-bar-container` | `aria-valuemax` | `"4"` | Maximum score |
+| `.strength-bar-container` | `aria-valuenow` | `"1"` (initial) | Current score (updated by app.js) |
+| `#generate-btn` | `aria-label` | `"Generate password"` | Button accessible name |
+| `#generate-btn` | `type` | `"button"` | Prevents accidental form submit |
 
-```js
-// src/app.js — Phase 1 entry point
-// Wires up the Generate button and password display.
-// Imports generation engine from ./engine/generator.js
+**Note on error element:** The `<p id="generate-error">` element with `role="alert"` and `aria-live="assertive"` is **not** in the static HTML. It is dynamically injected by `getOrCreateErrorEl()` in `app.js` and inserted immediately after `#generate-btn`. This is a divergence from a static-HTML approach but is the correct pattern for alerts that appear conditionally.
 
-import { generate } from './engine/generator.js';
+---
 
-// App state (Phase 1 subset — full state expanded in Phase 2)
-const appState = {
-  length: 16,
-  enabledSets: ['uppercase', 'lowercase', 'numbers', 'symbols'],
-  currentPassword: null,
-};
+## Strength Bar in Phase 1
 
-// DOM references
-const passwordDisplay = document.getElementById('password-display');
-const generateBtn = document.getElementById('generate-btn');
+The strength bar HTML structure is present in `index.html` with `style="width: 0%"` as the initial state. Unlike what the original plan described as "a Phase 2 placeholder," the strength bar is **fully wired and functional in Phase 1** via `renderStrengthIndicator()` in `src/app.js` (Plan 01-03). At Phase 1 defaults (length 16, all 4 sets, pool=90), entropy ≈ 103.9 bits → "Very Strong" displayed immediately on load.
 
-// Render functions
-export function renderPasswordDisplay(password) {
-  if (!password) {
-    passwordDisplay.value = '';
-    passwordDisplay.placeholder = 'Click Generate to create a password';
-  } else {
-    passwordDisplay.value = password;
-    passwordDisplay.setSelectionRange(0, 0); // scroll to start
-    passwordDisplay.scrollLeft = 0;
-  }
-}
+---
 
-// Initial render
-renderPasswordDisplay(appState.currentPassword);
+## Divergences from Original Plan
 
-// Event wiring is added in Plan 01-03
-```
-
-> **Note:** `src/app.js` is intentionally incomplete at the end of this plan. Plan 01-03 adds the generate button event handler. The file is created here so the `<script>` tag in `index.html` resolves without errors during Plan 01-02 browser testing.
-
-### Task 4: Verify display component in browser
-
-Open `index.html` in a browser (or `python3 -m http.server 8000`). Confirm:
-- Page renders without console errors
-- Placeholder text "Click Generate to create a password" is visible in the input field
-- Page background is dark; display field is monospace with dark styling
-- Pressing Tab reaches the input field (focusable)
+| Item | Original Plan Said | What Was Actually Built |
+|------|--------------------|------------------------|
+| `src/app.js` stub | Plan 01-02 creates a minimal stub; Plan 01-03 replaces it | Structurally correct — final `app.js` was written in Plan 01-03 |
+| `renderPasswordDisplay` — scroll behavior | Used `setSelectionRange(0, 0)` and `scrollLeft = 0` | Final implementation uses `scrollLeft = 0` only — simpler and equivalent |
+| Strength bar | "placeholder for Phase 2" (comment in HTML) | Fully functional in Phase 1; `renderStrengthIndicator()` wired in Plan 01-03 |
+| Error element | Not in original plan's HTML structure | Dynamically injected by `getOrCreateErrorEl()` in app.js — correct ARIA pattern |
 
 ---
 
 ## File Checklist
 
-- [ ] `index.html` created with full structure
-- [ ] `style.css` created with all style blocks
-- [ ] `src/app.js` stub created (import + DOM refs + `renderPasswordDisplay`)
-- [ ] `src/engine/` directory exists (from Plan 01-01)
+- [x] `index.html` created with full structure (59 lines)
+- [x] `style.css` created with all style blocks (156 lines)
+- [x] `<input id="password-display" readonly>` with placeholder text present
+- [x] `<button id="generate-btn" type="button">` present in action bar
+- [x] Strength bar container with `role="meter"` ARIA attributes present
+- [x] `<script type="module" src="src/app.js">` at bottom of `<body>`
 
 ---
 
-## Acceptance Criteria
+## Acceptance Criteria — Verified
 
-- [ ] `index.html` opens in browser without JS errors (module resolution may show 404 for generator.js if Plan 01-01 not done, but no syntax errors)
-- [ ] Placeholder text "Click Generate to create a password" is visible
-- [ ] Display field is read-only (typing in it has no effect)
-- [ ] Display field uses monospace font
-- [ ] Display field does not truncate long strings — horizontal scroll visible when value is set programmatically to a 128-char string
-- [ ] Tab navigation reaches the generate button and the display field
-- [ ] Responsive layout fits on 320px viewport without horizontal scrollbar on the page body
+- [x] `index.html` opens in browser without JS errors when served with `python3 -m http.server 8000`
+- [x] Placeholder text "Click Generate to create a password" is visible before first generation
+- [x] Display field is read-only — typing in it has no effect
+- [x] Display field uses monospace font (`'Courier New', Consolas, monospace`)
+- [x] Display field supports horizontal scroll for long passwords (`overflow-x: auto`, `white-space: nowrap`)
+- [x] Tab navigation reaches the generate button and display field
+- [x] Responsive layout fits 320px+ viewport without page-level horizontal scroll
+- [x] Dark theme applied: body `#1a202c`, app card `#2d3748`, display text `#68d391`
+- [x] Strength bar animates on width/color change (`transition: width 0.3s, background-color 0.3s`)
 
 ---
 
 ## Notes / Decisions
 
-- Using `<input type="text" readonly>` rather than a `<div contenteditable="false">` because native text inputs provide built-in horizontal scroll, keyboard focusability, and text selection without extra CSS hacks.
-- No `autocorrect`/`autocapitalize` attributes needed since the field is `readonly`.
-- The strength bar is scaffolded here with `width: 0%` so Phase 2 can populate it without changing HTML structure.
-- Config panel (length slider + character set toggles) is **not** included in this plan — it will be added in Phase 2 plans.
+- `<input type="text" readonly>` was used rather than `<div contenteditable="false">` — provides native horizontal scroll, keyboard focusability, and text selection without extra CSS hacks.
+- No `autocorrect`/`autocapitalize` attributes needed because the field is `readonly`.
+- The strength bar is scaffolded in HTML so Plan 01-03 can populate it without any HTML changes.
+- Config panel (length slider + character set toggles) is intentionally absent — added in Phase 2.
+- Comment placeholders in HTML (`<!-- Config Panel ... -->`, `<!-- Copy button ... -->`) serve as handoff markers for Phase 2 and Phase 3.

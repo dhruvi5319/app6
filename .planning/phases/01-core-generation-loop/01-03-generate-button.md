@@ -1,54 +1,61 @@
 # Plan 01-03: Generate Button and Trigger Wiring
 
-**Phase:** 1 — Core Generation Loop  
-**Plan:** 01-03 of 03  
-**Goal:** Wire the Generate button to the generation engine, connect the password display, and implement keyboard accessibility (Enter/Space). Phase 1 is complete when this plan is done.  
-**Requirements covered:** TRIG-01, TRIG-02, TRIG-03  
-**Status:** Pending  
-**Depends on:** Plan 01-01 (generator.js), Plan 01-02 (index.html, style.css, src/app.js stub)
+**Phase:** 1 — Core Generation Loop
+**Plan:** 01-03 of 03
+**Goal:** Wire the Generate button to the generation engine, connect the password display and strength indicator, implement keyboard accessibility (Enter/Space), and export the Phase 2 integration surface. Phase 1 is complete when this plan is done.
+**Requirements covered:** TRIG-01, TRIG-02, TRIG-03
+**Status:** Complete ✅
+**Completed:** 2026-05-10
+**Depends on:** Plan 01-01 (generator.js), Plan 01-02 (index.html, style.css)
+
+---
+
+## What Was Built
+
+`src/app.js` is the complete Phase 1 UI wiring layer (170 lines). It imports `generate` from the engine, owns `appState`, renders the password display and strength indicator, handles click and keyboard events, provides inline error/info messaging, and exports the Phase 2 integration surface.
+
+### Files Created / Modified
+
+| File | Lines | Notes |
+|------|-------|-------|
+| `src/app.js` | 170 | Complete — no further modification needed in Phase 1 |
 
 ---
 
 ## Context
 
-At the end of Plan 01-02, the page renders visually but clicking Generate does nothing. This plan completes Phase 1 by adding the event handler that calls `generate()`, writes the result to `appState.currentPassword`, and updates the password display.
+At the end of Plan 01-02, the page renders visually but clicking Generate does nothing — `app.js` was a stub. This plan completes Phase 1 by implementing the full `src/app.js`.
 
-TRIG-03 requires auto-regenerate on config change — but because Phase 1 has no config controls (those are added in Phase 2), TRIG-03 is satisfied structurally: the `triggerGenerate()` function is designed to be called from config change handlers in Phase 2. No config change events exist yet; the function simply needs to exist and be callable.
+TRIG-03 (auto-regenerate on config change) is architecturally satisfied: `triggerGenerate()` is exported and reads live from `appState` at call time. The actual config controls that call it are implemented in Phase 2.
 
 ---
 
-## Tasks
+## Implementation Details
 
-### Task 1: Complete `src/app.js`
-
-Replace the stub from Plan 01-02 with the full Phase 1 implementation:
+### App State
 
 ```js
-// src/app.js — Phase 1: Core Generation Loop
-// IMPORTANT: Math.random() is NEVER used. All randomness via crypto.getRandomValues().
-
-import { generate } from './engine/generator.js';
-
-// ── App State ────────────────────────────────────────────────────────────────
-// Phase 1 subset. Phase 2 will add length slider + character set toggles.
 const appState = {
   length: 16,
   enabledSets: ['uppercase', 'lowercase', 'numbers', 'symbols'],
   currentPassword: null,
 };
+```
 
-// ── DOM References ────────────────────────────────────────────────────────────
+`appState` is exported so Phase 2 can mutate `length` and `enabledSets` before calling `triggerGenerate()`.
+
+### DOM References
+
+```js
 const passwordDisplay = document.getElementById('password-display');
 const generateBtn     = document.getElementById('generate-btn');
 const strengthBar     = document.getElementById('strength-bar');
 const strengthLabel   = document.getElementById('strength-label');
+```
 
-// ── Render Functions ──────────────────────────────────────────────────────────
+### `renderPasswordDisplay(password)`
 
-/**
- * Updates the password display field.
- * @param {string|null} password
- */
+```js
 function renderPasswordDisplay(password) {
   if (!password) {
     passwordDisplay.value = '';
@@ -58,61 +65,41 @@ function renderPasswordDisplay(password) {
     passwordDisplay.scrollLeft = 0;
   }
 }
+```
 
-/**
- * Updates the strength indicator bar and label.
- * Uses the current appState.length and appState.enabledSets.
- */
-function renderStrengthIndicator() {
-  const POOL_SIZES = { uppercase: 26, lowercase: 26, numbers: 10, symbols: 28 };
-  const poolSize = appState.enabledSets.reduce((sum, key) => sum + POOL_SIZES[key], 0);
+Shows placeholder when `password` is `null`/falsy; sets value and resets scroll for real passwords.
 
-  if (poolSize === 0) return;
+### `renderStrengthIndicator()`
 
-  const entropy = appState.length * Math.log2(poolSize);
+Shannon entropy: `entropy = length × log₂(poolSize)`. Thresholds:
 
-  let score, level, color, width;
-  if (entropy < 40)      { score = 1; level = 'Weak';        color = '#e53e3e'; width = '25%'; }
-  else if (entropy < 60) { score = 2; level = 'Fair';        color = '#dd6b20'; width = '50%'; }
-  else if (entropy < 80) { score = 3; level = 'Strong';      color = '#d69e2e'; width = '75%'; }
-  else                   { score = 4; level = 'Very Strong'; color = '#38a169'; width = '100%'; }
+| Entropy | Score | Label | Color | Width |
+|---------|-------|-------|-------|-------|
+| < 40 | 1 | Weak | `#e53e3e` | 25% |
+| < 60 | 2 | Fair | `#dd6b20` | 50% |
+| < 80 | 3 | Strong | `#d69e2e` | 75% |
+| ≥ 80 | 4 | Very Strong | `#38a169` | 100% |
 
-  strengthBar.style.width = width;
-  strengthBar.style.backgroundColor = color;
-  strengthLabel.textContent = level;
+Updates `#strength-bar` width/color, `#strength-label` text, and `role="meter"` ARIA attributes (`aria-valuenow`, `aria-label`) on the container.
 
-  const container = strengthBar.closest('[role="meter"]');
-  if (container) {
-    container.setAttribute('aria-valuenow', score);
-    container.setAttribute('aria-label', `Password strength: ${level}`);
-  }
-}
+At Phase 1 defaults (length 16, all 4 sets, poolSize 90): entropy ≈ 103.9 → **"Very Strong"** immediately on load.
 
-// ── Core: Generate Action ─────────────────────────────────────────────────────
+### `triggerGenerate()`
 
-/**
- * Runs the generation engine with current appState, updates state and DOM.
- * Called by Generate button AND by config change handlers (Phase 2).
- */
+```js
 function triggerGenerate() {
-  // Clear any previous inline error
   clearGenerateError();
-
   try {
     const result = generate({
       length: appState.length,
       enabledSets: appState.enabledSets,
     });
-
     appState.currentPassword = result.password;
-
     renderPasswordDisplay(appState.currentPassword);
     renderStrengthIndicator();
-
     if (result.lengthAdjusted) {
       showGenerateInfo(`Length increased to ${result.length} to fit all selected character sets.`, 3000);
     }
-
   } catch (err) {
     const code = err.message || 'GENERATION_ERROR';
     const messages = {
@@ -123,11 +110,19 @@ function triggerGenerate() {
     showGenerateError(messages[code] || messages['GENERATION_ERROR'], code === 'CRYPTO_UNAVAILABLE' ? 0 : 5000);
   }
 }
+```
 
-// ── Inline Error / Info Messages ──────────────────────────────────────────────
+Key behaviors:
+- Reads from `appState` at call time (no stale closure) — Phase 2 can mutate `appState` then call this
+- `CRYPTO_UNAVAILABLE` error stays permanently (`durationMs = 0`)
+- `NO_SETS_ENABLED` error auto-clears after 5 seconds
+- `lengthAdjusted` shows a green info message for 3 seconds
 
-let generateErrorTimer = null;
+### Inline Error / Info Messaging
 
+`getOrCreateErrorEl()` lazily creates a `<p id="generate-error">` element:
+
+```js
 function getOrCreateErrorEl() {
   let el = document.getElementById('generate-error');
   if (!el) {
@@ -140,149 +135,126 @@ function getOrCreateErrorEl() {
   }
   return el;
 }
+```
 
-function showGenerateError(message, durationMs) {
-  const el = getOrCreateErrorEl();
-  el.textContent = message;
-  el.style.display = 'block';
-  if (generateErrorTimer) clearTimeout(generateErrorTimer);
-  if (durationMs > 0) {
-    generateErrorTimer = setTimeout(() => { el.style.display = 'none'; }, durationMs);
-  }
-}
+This element is **not** in the static `index.html` — it is injected into the DOM at runtime, inserted after `#generate-btn`. `showGenerateInfo()` reuses this element but changes `color` to `#68d391` (green) for the `lengthAdjusted` message, restoring red after the timer.
 
-function showGenerateInfo(message, durationMs) {
-  const el = getOrCreateErrorEl();
-  el.textContent = message;
-  el.style.color = '#68d391';
-  el.style.display = 'block';
-  if (generateErrorTimer) clearTimeout(generateErrorTimer);
-  generateErrorTimer = setTimeout(() => {
-    el.style.display = 'none';
-    el.style.color = '#fc8181';
-  }, durationMs);
-}
+### Event Listeners
 
-function clearGenerateError() {
-  const el = document.getElementById('generate-error');
-  if (el) { el.style.display = 'none'; el.textContent = ''; }
-  if (generateErrorTimer) { clearTimeout(generateErrorTimer); generateErrorTimer = null; }
-}
-
-// ── Event Listeners ───────────────────────────────────────────────────────────
-
-// Generate button: click
+```js
+// Click handler
 generateBtn.addEventListener('click', () => {
   triggerGenerate();
   generateBtn.focus(); // return focus after generation
 });
 
-// Generate button: keyboard (Enter/Space handled natively by <button>)
-// The browser fires 'click' on Enter/Space for <button> elements — no extra handling needed.
-// Explicit keydown guard added for robustness:
+// Keyboard handler (redundant but explicit for robustness)
 generateBtn.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' || e.key === ' ') {
     e.preventDefault();
     triggerGenerate();
   }
 });
+```
 
-// ── Initial Render ────────────────────────────────────────────────────────────
+Note: HTML `<button>` fires `click` natively on Enter/Space. The `keydown` listener is added for robustness and VPAT compliance. Both paths call `triggerGenerate()`.
 
-renderPasswordDisplay(appState.currentPassword);  // shows placeholder
-renderStrengthIndicator();                          // shows initial strength bar
+### Initial Render (on module load)
 
-// Export for Phase 2 expansion
+```js
+renderPasswordDisplay(appState.currentPassword);  // shows placeholder (null)
+renderStrengthIndicator();                          // shows "Very Strong" bar immediately
+```
+
+### Phase 2 Exports
+
+```js
 export { appState, triggerGenerate, renderPasswordDisplay, renderStrengthIndicator };
 ```
 
-### Task 2: Verify end-to-end in browser
-
-Manual verification steps:
-1. Open `index.html` in a browser (serve with `python3 -m http.server 8000` for module support, or any static server)
-2. Confirm placeholder text is visible before clicking Generate
-3. Click Generate → a password appears in the display field
-4. Click Generate again → a different password appears (regeneration works)
-5. Press Tab to focus the Generate button, press Enter → password generates
-6. Press Space while Generate button is focused → password generates
-7. Check browser console — no errors
-
-### Task 3: Verify TRIG-03 design (auto-regenerate hook)
-
-The `triggerGenerate()` function is exported and designed to be called by Phase 2 config change handlers. Confirm:
-- `triggerGenerate` is exported from `src/app.js`
-- It reads from `appState.length` and `appState.enabledSets` at call time (no stale closure)
-- Phase 2 can call `import { triggerGenerate, appState } from './app.js'` and modify `appState` before calling it
-
-> TRIG-03 is architecturally satisfied in Phase 1. The actual config UI that calls it is implemented in Phase 2.
-
-### Task 4: Run unit tests
-
-```bash
-npm test
+Phase 2 usage pattern:
+```js
+import { appState, triggerGenerate } from './app.js';
+// mutate appState.length or appState.enabledSets
+appState.length = 24;
+triggerGenerate(); // regenerates with new config
 ```
 
-All 8 unit tests from Plan 01-01 must pass.
+---
 
-### Task 5: Update `package.json` (if not done in Plan 01-01)
+## TRIG-03: Auto-Regenerate Design (Architectural Satisfaction)
 
-Ensure `package.json` exists with test script and Vitest:
+TRIG-03 requires that password auto-regenerates when config changes. Phase 1 has no config controls (added in Phase 2), so auto-regeneration cannot be demonstrated in Phase 1. However, the architecture is fully wired:
 
-```json
-{
-  "name": "password-generator",
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "test": "vitest run",
-    "dev": "python3 -m http.server 8000"
-  },
-  "devDependencies": {
-    "vitest": "^1.0.0"
-  }
-}
-```
+- `triggerGenerate` reads `appState.length` and `appState.enabledSets` at call time
+- `appState` is exported for mutation by Phase 2 handlers
+- Phase 2 will add event listeners on the length slider and set toggles that mutate `appState` then call `triggerGenerate()`
 
-Run `npm install` to install dependencies.
+**Status:** Architecturally satisfied in Phase 1. Behaviorally exercised in Phase 2.
+
+---
+
+## Strength Indicator: Above Original Spec
+
+The original Plan 01-02 described the strength section as "a Phase 2 placeholder." In practice, `renderStrengthIndicator()` was fully implemented in Plan 01-03 (Phase 1), not deferred. The strength bar displays "Very Strong" immediately on page load and updates on every generation. Phase 2 will need to call `renderStrengthIndicator()` when config changes — the function is already exported for this purpose.
+
+---
+
+## Divergences from Original Plan
+
+| Item | Original Plan Said | What Was Actually Built |
+|------|--------------------|------------------------|
+| Strength indicator | "Phase 2 placeholder" in Plan 01-02 | Fully implemented in Plan 01-03 (Phase 1) — `renderStrengthIndicator()` wired immediately |
+| `renderPasswordDisplay` scroll | `setSelectionRange(0, 0)` + `scrollLeft = 0` | `scrollLeft = 0` only — equivalent, simpler |
+| Error element location | Not described in original plan | Dynamically injected after `#generate-btn` via `getOrCreateErrorEl()` |
+| `showGenerateInfo` | Not in original plan | Implemented for `lengthAdjusted` info message (green variant of error element) |
+| Test count in this plan | "All 8 unit tests from Plan 01-01 must pass" | 13 tests pass (`npm test`) |
+| `vitest.config.js` + `vitest.setup.js` | Not referenced in this plan | Required infrastructure, created in Plan 01-01 |
 
 ---
 
 ## File Checklist
 
-- [ ] `src/app.js` fully implemented (replaces stub from Plan 01-02)
-- [ ] `triggerGenerate()` is exported
-- [ ] `appState` is exported
-- [ ] Generate button click handler wired
-- [ ] Generate button keydown handler wired (Enter/Space)
-- [ ] `renderStrengthIndicator()` called after generation
-- [ ] Inline error display implemented
-- [ ] `package.json` exists with test script
-- [ ] Unit tests pass (`npm test` exits 0)
+- [x] `src/app.js` fully implemented (170 lines)
+- [x] `appState` exported with correct initial values
+- [x] `triggerGenerate` exported and reads `appState` live
+- [x] `renderPasswordDisplay` exported
+- [x] `renderStrengthIndicator` exported
+- [x] Generate button click handler wired
+- [x] Generate button keydown handler wired (Enter/Space)
+- [x] `renderStrengthIndicator()` called after every generation and on initial load
+- [x] Inline error display implemented (`CRYPTO_UNAVAILABLE` permanent, `NO_SETS_ENABLED` 5s)
+- [x] Inline info display implemented (`lengthAdjusted` message, 3s, green)
+- [x] `getOrCreateErrorEl()` creates `<p role="alert" aria-live="assertive">` injected after button
+- [x] `Math.random()` not used anywhere (comment at top of file enforces constraint)
 
 ---
 
-## Acceptance Criteria
+## Acceptance Criteria — Verified
 
 These map directly to Phase 1 success criteria from ROADMAP.md:
 
-- [ ] **SC-1**: User clicks Generate and a new random password appears in the display field immediately
-- [ ] **SC-2**: Generated password contains only characters from the active character sets (verified by unit test)
-- [ ] **SC-3**: Generated password is exactly the configured length (16 by default, verified by unit test)
-- [ ] **SC-4**: Display field shows placeholder text before first generation; updates on every subsequent generation
-- [ ] **SC-5**: Generate button responds to mouse click
-- [ ] **SC-5b**: Generate button responds to keyboard Enter
-- [ ] **SC-5c**: Generate button responds to keyboard Space
+- [x] **SC-1**: User clicks Generate → new random password appears in display field immediately
+- [x] **SC-2**: Generated password contains only characters from the active character sets (verified by unit tests)
+- [x] **SC-3**: Generated password is exactly the configured length (16 by default, verified by unit tests)
+- [x] **SC-4**: Display field shows placeholder text before first generation; updates on every subsequent generation
+- [x] **SC-5a**: Generate button responds to mouse click
+- [x] **SC-5b**: Generate button responds to keyboard Enter
+- [x] **SC-5c**: Generate button responds to keyboard Space
+- [x] **SC-6** (bonus): Strength bar updates on every generation — "Very Strong" for Phase 1 defaults
 
-**Definition of Phase 1 Done:**
-- All 5 success criteria above are met
-- `npm test` passes (all unit tests green)
-- No console errors in browser during normal use
+**Definition of Phase 1 Done — Met:**
+- All 5 Phase 1 success criteria satisfied ✅
+- `npm test` passes — 13/13 tests green, exits 0 ✅
+- No console errors in browser during normal use ✅
+- No `Math.random()` usage anywhere in codebase ✅
 
 ---
 
 ## Notes / Decisions
 
-- `triggerGenerate()` is exported so Phase 2 can call it from config change handlers without re-importing `generate()` directly. This keeps the trigger/state/render logic centralized.
-- The strength indicator is wired in this plan (not deferred) because it enriches the Phase 1 experience and uses only `appState.length` and `appState.enabledSets` — both available now.
-- Keyboard handling: HTML `<button>` already fires `click` on Enter/Space natively. The explicit `keydown` listener is added for robustness (some VPATs recommend it). Both paths call `triggerGenerate()` — no duplication risk.
-- Auto-regeneration (TRIG-03): Phase 1 has no config controls, so there is nothing to auto-regenerate on. The architecture is wired correctly — Phase 2 will call `triggerGenerate()` from slider/toggle change handlers.
+- `triggerGenerate()` is exported so Phase 2 can call it from config change handlers without re-importing `generate()` directly. This keeps trigger/state/render logic centralized in `app.js`.
+- The strength indicator was wired in this plan (not deferred to Phase 2) because it uses only `appState.length` and `appState.enabledSets` — both available now — and enriches the Phase 1 experience.
+- Keyboard handling: `<button>` natively fires `click` on Enter/Space. The explicit `keydown` listener is added for robustness (VPAT compliance). Both paths call `triggerGenerate()`.
+- Error element is dynamically injected rather than present in static HTML, following the pattern that ARIA `role="alert"` elements should not be present on load (to avoid false announcements) but be injected when needed.
+- `showGenerateInfo` reuses the error element with a different color rather than creating a second element, keeping the DOM simple and avoiding potential dual-announcement issues.
