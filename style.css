@@ -154,3 +154,63 @@ h1 {
     padding: 0.625rem 1rem;
   }
 }
+
+/* ── Config Panel ──────────────────────────────────────────────────────────── */
+
+.config-panel {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.config-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.config-label {
+  font-size: 0.875rem;
+  color: #a0aec0;
+  font-weight: 500;
+}
+
+/* Length slider + numeric input row */
+.length-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.length-slider {
+  flex: 1;
+  height: 4px;
+  accent-color: #4299e1;
+  cursor: pointer;
+}
+
+.length-number {
+  width: 4.5rem;
+  padding: 0.375rem 0.5rem;
+  background: #1a202c;
+  color: #e2e8f0;
+  border: 2px solid #4a5568;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  text-align: center;
+  /* Remove spin arrows for cleaner look */
+  -moz-appearance: textfield;
+}
+
+.length-number::-webkit-outer-spin-button,
+.length-number::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.length-number:focus {
+  border-color: #63b3ed;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
+}

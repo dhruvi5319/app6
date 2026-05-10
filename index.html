@@ -41,7 +41,45 @@
         <!-- Copy button added in Phase 3 -->
       </section>
 
-      <!-- Config Panel (F1, F2) — added in Phase 2 -->
+      <!-- Config Panel: Length + Character Sets (Phase 2) -->
+      <section class="config-panel" aria-label="Password configuration">
+
+        <!-- Length control -->
+        <div class="config-row config-row--length">
+          <label class="config-label" for="length-slider">
+            Length: <span id="length-display">16</span>
+          </label>
+          <div class="length-controls">
+            <input
+              type="range"
+              id="length-slider"
+              class="length-slider"
+              min="8"
+              max="128"
+              value="16"
+              aria-label="Password length"
+              aria-valuemin="8"
+              aria-valuemax="128"
+              aria-valuenow="16"
+            />
+            <input
+              type="number"
+              id="length-number"
+              class="length-number"
+              min="8"
+              max="128"
+              value="16"
+              aria-label="Password length (numeric)"
+            />
+          </div>
+        </div>
+
+        <!-- Character set toggles (Phase 2 Plan 02-02) -->
+        <div class="config-row config-row--charsets" id="charset-controls">
+          <!-- Populated in Plan 02-02 -->
+        </div>
+
+      </section>
 
       <!-- Strength Indicator (F5) — placeholder for Phase 2 -->
       <section class="strength-section" aria-label="Password strength">
@@ -55,5 +93,11 @@
 
   <!-- Module entry point — wired in Plan 01-03 -->
   <script type="module" src="src/app.js"></script>
+  <script type="module">
+    import { initLengthControl } from './src/config/length.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      initLengthControl();
+    });
+  </script>
 </body>
 </html>
