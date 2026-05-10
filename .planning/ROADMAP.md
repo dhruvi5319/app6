@@ -37,7 +37,7 @@ Plans:
 - [x] 01-03: Generate button and trigger wiring (click, keyboard, auto-regenerate on config change)
 
 ### Phase 2: Configuration Controls
-**Status**: In Progress
+**Status**: executing
 **Goal**: Users can control password length and character composition before generating
 **Depends on**: Phase 1
 **Requirements**: LEN-01, LEN-02, LEN-03, CHAR-01, CHAR-02, CHAR-03, CHAR-04, CHAR-05
