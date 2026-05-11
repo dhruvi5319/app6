@@ -55,7 +55,7 @@ Plans:
 - [ ] 02-02-PLAN.md — Character set toggles (four checkboxes, Last Active Guard, state sync)
 
 ### Phase 3: Copy to Clipboard
-**Status**: In Progress
+**Status**: passed
 **Goal**: Users can copy the generated password to their clipboard in one click
 **Depends on**: Phase 2
 **Requirements**: COPY-01, COPY-02, COPY-03
@@ -63,7 +63,7 @@ Plans:
   1. User clicks Copy and the password is written to the system clipboard
   2. Copy button shows "Copied!" for 2 seconds then reverts to "Copy"
   3. Copy works even when the Clipboard API is unavailable (execCommand fallback)
-**Plans**: 1 plan
+**Plans**: Complete
 
 Plans:
 - [x] 03-01-PLAN.md — Copy button with Clipboard API, execCommand fallback, and "Copied!" confirmation
