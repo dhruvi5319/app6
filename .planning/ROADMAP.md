@@ -62,10 +62,10 @@ Plans:
   1. User clicks Copy and the password is written to the system clipboard
   2. Copy button shows "Copied!" for 2 seconds then reverts to "Copy"
   3. Copy works even when the Clipboard API is unavailable (execCommand fallback)
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 03-01: Copy button with Clipboard API, execCommand fallback, and "Copied!" confirmation
+- [ ] 03-01-PLAN.md — Copy button with Clipboard API, execCommand fallback, and "Copied!" confirmation
 
 ## Progress
 
@@ -76,4 +76,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Core Generation Loop | 3/3 | Done | 2026-05-10 |
 | 2. Configuration Controls | 0/3 | Not started | - |
-| 3. Copy to Clipboard | 0/1 | Not started | - |
+| 3. Copy to Clipboard | 0/1 | Planned | - |
