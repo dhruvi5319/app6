@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Core Generation Loop** - Engine, display, and generate trigger working end-to-end
 - [ ] **Phase 2: Configuration Controls** - Length slider/input and character set toggles
-- [ ] **Phase 3: Copy to Clipboard** - One-click copy with visual confirmation and fallback
+- [x] **Phase 3: Copy to Clipboard** - One-click copy with visual confirmation and fallback
 
 ## Phase Details
 
@@ -55,7 +55,7 @@ Plans:
 - [ ] 02-02-PLAN.md — Character set toggles (four checkboxes, Last Active Guard, state sync)
 
 ### Phase 3: Copy to Clipboard
-**Status**: awaiting verify
+**Status**: In Progress
 **Goal**: Users can copy the generated password to their clipboard in one click
 **Depends on**: Phase 2
 **Requirements**: COPY-01, COPY-02, COPY-03
@@ -66,7 +66,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 03-01-PLAN.md — Copy button with Clipboard API, execCommand fallback, and "Copied!" confirmation
+- [x] 03-01-PLAN.md — Copy button with Clipboard API, execCommand fallback, and "Copied!" confirmation
 
 ## Progress
 
