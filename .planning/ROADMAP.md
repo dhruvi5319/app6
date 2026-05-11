@@ -55,7 +55,7 @@ Plans:
 - [ ] 02-02-PLAN.md — Character set toggles (four checkboxes, Last Active Guard, state sync)
 
 ### Phase 3: Copy to Clipboard
-**Status**: executing
+**Status**: passed
 **Goal**: Users can copy the generated password to their clipboard in one click
 **Depends on**: Phase 2
 **Requirements**: COPY-01, COPY-02, COPY-03
