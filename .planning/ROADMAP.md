@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: Core Generation Loop
-**Status**: In Progress
+**Status**: executing
 **Goal**: Users can generate and see a cryptographically random password
 **Depends on**: Nothing (first phase)
 **Requirements**: GEN-01, GEN-02, GEN-03, DISP-01, DISP-02, DISP-03, TRIG-01, TRIG-02, TRIG-03
