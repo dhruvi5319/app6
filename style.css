@@ -214,3 +214,30 @@ h1 {
   outline: none;
   box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
 }
+
+/* ── Copy Button ───────────────────────────────────────────────────────────── */
+
+.btn-secondary {
+  background: #4a5568;
+  color: #e2e8f0;
+  flex: 0 0 auto;
+  min-width: 5rem;
+}
+
+.btn-secondary:hover {
+  background: #718096;
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+.btn--copied {
+  background: #276749 !important;
+  color: #c6f6d5 !important;
+  cursor: default;
+}
+
+.btn--copied:hover {
+  background: #276749 !important;
+}

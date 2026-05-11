@@ -38,7 +38,14 @@
         >
           Generate Password
         </button>
-        <!-- Copy button added in Phase 3 -->
+        <button
+          id="copy-btn"
+          class="btn btn-secondary"
+          aria-label="Copy password to clipboard"
+          type="button"
+        >
+          Copy
+        </button>
       </section>
 
       <!-- Config Panel: Length + Character Sets (Phase 2) -->
@@ -97,6 +104,12 @@
     import { initLengthControl } from './src/config/length.js';
     document.addEventListener('DOMContentLoaded', () => {
       initLengthControl();
+    });
+  </script>
+  <script type="module">
+    import { initCopyButton } from './src/clipboard.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      initCopyButton();
     });
   </script>
 </body>
